@@ -3,6 +3,12 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+
+    "baseUrl": ".",
+    "paths": {
+      "@environments/*":["src/envionments/*"]
+
+    },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
