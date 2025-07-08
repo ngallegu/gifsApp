@@ -6,7 +6,8 @@
 
 <!-- Mansonry -->
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
+<div class="h-screen overflow-y-scroll grid grid-cols-2 md:grid-cols-4 gap-4 pt-6" (scroll)="onScroll($event)"
+  #groupDivRef>
 
   @for (group of gifService.trendingGifGroup(); track $index) {
 

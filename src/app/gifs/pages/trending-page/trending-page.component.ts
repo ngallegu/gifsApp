@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { GiftService } from '../../services/gifs.service';
-import { GifListComponent } from '../../components/gift-list/gif-list.component';
+import { ScrollStateService } from 'src/app/shared/service/scroll-state.service';
 
 
 // const imageUrls: string[] = [
@@ -20,11 +20,10 @@ import { GifListComponent } from '../../components/gift-list/gif-list.component'
 
 @Component({
   selector: 'app-trending-page',
-  imports: [GifListComponent],
   templateUrl: './trending-page.component.html',
 })
 
-export default class TrendingPageComponent {
+export default class TrendingPageComponent implements AfterViewInit {
 
   // gifs = signal(imageUrls);
   // OP1
@@ -32,9 +31,57 @@ export default class TrendingPageComponent {
 
   //OP2
   gifService = inject(GiftService);
-  gr: any;
+  scrollService = inject(ScrollStateService);
 
   // gifs = signal(imageUrls);
   // imageUrls: imageUrls;
+
+  //Se ejecuta despues que la
+  ngAfterViewInit(): void {
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
+
+    if (!scrollDiv) return;
+
+    scrollDiv.scrollTop = this.scrollService.trendingScrollState();
+
+  }
+
+
+
+  scrollDivRef = viewChild<ElementRef>('groupDivRef')
+
+  onScroll($event: Event) {
+
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
+
+    if (!scrollDiv) {
+      return;
+    }
+
+
+    //ScrollTop
+    const scrollTop = scrollDiv.scrollTop;
+    const clientHeight = scrollDiv.clientHeight;
+    const clientWidth = scrollDiv.clientWidth;
+    const scrollHeight = scrollDiv.scrollHeight;
+
+
+    // console.table({scrollTop, clientHeight ,scrollHeight});
+    console.log({ scrollTop, clientHeight, scrollHeight });
+
+    //cuando este cerca del final se hce la petición
+    const isAtBottom = scrollTop + clientHeight + 300 >= scrollHeight;
+
+    this.scrollService.trendingScrollState.set(scrollTop);
+
+    console.log({ isAtBottom });
+
+    if (isAtBottom) {
+      this.gifService.loadTrendingGifs();
+    }
+
+  }
+
+
 
 }

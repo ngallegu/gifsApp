@@ -14,7 +14,9 @@ const loadFromLocalStorage = () => {
   const gifsFromLocalStorage = localStorage.getItem(GIF_KEY) ?? '{}';
   const gifs = JSON.parse(gifsFromLocalStorage);
 
-  console.log(gifs);
+
+  // LOAD form storage
+  // console.log(gifs);
 
   return gifs;
 
@@ -29,7 +31,10 @@ export class GiftService {
   private http = inject(HttpClient);
 
   trendingGifs = signal<Gif[]>([]); //[gif1, gif2, gif3]
-  trendingGifsLoading = signal(true);
+  trendingGifsLoading = signal(false);
+
+
+  private trendingPage = signal(0);
 
 
   trendingGifGroup = computed<Gif[][]>(() => {
@@ -40,7 +45,7 @@ export class GiftService {
       gr.push(this.trendingGifs().slice(i, i + 3));
     }
 
-    console.log(gr);
+    // console.log(gr);
 
     return gr; //[gif1, gif2, gif3] , [gif4, gif5, gif6]
 
@@ -52,7 +57,7 @@ export class GiftService {
   constructor() {
 
     this.loadTrendingGifs();
-    console.log('Servicio creado');
+    // console.log('Servicio carga gifs creado');
   }
 
   saveGifsToLocalStorage = effect(() => {
@@ -61,24 +66,35 @@ export class GiftService {
 
   });
 
-  //Cargar
+  //Cargar gifs con http
   loadTrendingGifs() {
+ if (this.trendingGifsLoading()) return;
+
+    this.trendingGifsLoading.set(true)
 
     this.http.get<GiphyResponse>(`${environment.giphyUrl}/gifs/trending`, {
 
       params: {
         api_key: environment.giphyApiKey,
-        limit: 50,
+        limit: 20,
+        offset: this.trendingPage() * 20,
       }
 
     }).subscribe((resp) => {
 
       const gifs = GifMapper.myGiphyItemsToGifArray(resp.data);
-      this.trendingGifs.set(gifs);
-      this.trendingGifsLoading.set(false);
+      // this.trendingGifs.set(gifs);
+      this.trendingGifs.update((currentGifs) => [
 
+        ...currentGifs,
+        ...gifs,
+      ]);
+
+      this.trendingPage.update((current)=> current+1)
+
+      this.trendingGifsLoading.set(false);
       //Respuesta
-      console.log(`Respuesta:`, { gifs });
+      // console.log(`Respuesta:`, { gifs });
 
     })
 
@@ -100,7 +116,6 @@ export class GiftService {
       map(({ data }) => data),
       map((items) => GifMapper.myGiphyItemsToGifArray(items)),
 
-      // TODO:Historial
       tap(items => {
 
         this.searchHistory.update(history => ({ // Return implicito de nuevo obheto con () {}
