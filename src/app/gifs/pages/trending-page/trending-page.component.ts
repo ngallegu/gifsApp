@@ -69,10 +69,13 @@ export default class TrendingPageComponent implements AfterViewInit {
     // console.table({scrollTop, clientHeight ,scrollHeight});
     console.log({ scrollTop, clientHeight, scrollHeight });
 
+
     //cuando este cerca del final se hce la petición
     const isAtBottom = scrollTop + clientHeight + 300 >= scrollHeight;
 
+
     this.scrollService.trendingScrollState.set(scrollTop);
+
 
     console.log({ isAtBottom });
 

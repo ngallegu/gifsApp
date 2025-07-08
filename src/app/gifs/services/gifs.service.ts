@@ -33,7 +33,6 @@ export class GiftService {
   trendingGifs = signal<Gif[]>([]); //[gif1, gif2, gif3]
   trendingGifsLoading = signal(false);
 
-
   private trendingPage = signal(0);
 
 
@@ -70,7 +69,7 @@ export class GiftService {
   loadTrendingGifs() {
  if (this.trendingGifsLoading()) return;
 
-    this.trendingGifsLoading.set(true)
+    this.trendingGifsLoading.set(true);
 
     this.http.get<GiphyResponse>(`${environment.giphyUrl}/gifs/trending`, {
 
